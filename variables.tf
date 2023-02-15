@@ -26,3 +26,8 @@ variable "filepath_manifest" {
   description = "Path to Online Boutique's Kubernetes resources, written using Kustomize"
   default     = "../kustomize/"
 }
+
+variable "memorystore" {
+  type        = bool
+  description = "If true, Online Boutique's in-cluster Redis cache will be replaced with a Google Cloud Memorystore Redis cache"
+}
