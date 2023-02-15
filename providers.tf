@@ -7,8 +7,15 @@ terraform {
   }
 }
 
+provider "google-beta" {
+  project = var.gcp_project_id
+  region  = var.region
+  credentials = file("gcp-credentials.json")
+}
+
 provider "google" {
   project = var.gcp_project_id
   region  = var.region
   credentials = file("gcp-credentials.json")
 }
+

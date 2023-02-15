@@ -24,7 +24,7 @@ variable "namespace" {
 variable "filepath_manifest" {
   type        = string
   description = "Path to Online Boutique's Kubernetes resources, written using Kustomize"
-  default     = "../kustomize/"
+  default     = "k8s-files/"
 }
 
 variable "memorystore" {

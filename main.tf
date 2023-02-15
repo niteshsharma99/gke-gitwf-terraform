@@ -42,3 +42,39 @@ resource "google_container_cluster" "my_cluster" {
   ]
 }
 
+# Get credentials for cluster
+module "gcloud" {
+  source  = "terraform-google-modules/gcloud/google"
+  version = "~> 3.0"
+
+  platform              = "linux"
+  additional_components = ["kubectl", "beta"]
+
+  create_cmd_entrypoint = "gcloud"
+  # Use local variable cluster_name for an implicit dependency on resource "google_container_cluster" 
+  create_cmd_body = "container clusters get-credentials ${local.cluster_name} --zone=${var.region}"
+}
+
+# Apply YAML kubernetes-manifest configurations
+resource "null_resource" "apply_deployment" {
+  provisioner "local-exec" {
+    interpreter = ["bash", "-exc"]
+    command     = "kubectl apply -f ${var.filepath_manifest}"
+  }
+
+  depends_on = [
+    module.gcloud
+  ]
+}
+
+# Wait condition for all Pods to be ready before finishing
+resource "null_resource" "wait_conditions" {
+  provisioner "local-exec" {
+    interpreter = ["bash", "-exc"]
+    command     = "kubectl wait --for=condition=ready pods --all -n ${var.namespace} --timeout=-1s 2> /dev/null"
+  }
+
+  depends_on = [
+    resource.null_resource.apply_deployment
+  ]
+}
